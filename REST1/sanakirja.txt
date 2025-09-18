@@ -1,0 +1,9 @@
+kissa cat
+koira dog
+talo house
+auto car
+hevonen horse
+kukka flower
+kana chicken
+karhu bear
+sorsa duck

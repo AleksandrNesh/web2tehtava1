@@ -41,6 +41,47 @@ app.use(function (req, res, next) {
   next();
 });
 
+// GET /search?word=... - haku query parametrilla
+app.get("/search", (req, res) => {
+  const finnishWord = req.query.word;
+
+  // Luetaan sanakirja.txt -tiedoston sisältö synkronisesti (UTF-8 merkistökoodaus)
+  const fileContent = fs.readFileSync("./sanakirja.txt", "utf8");
+  const lines = fileContent.split(/\r?\n/);
+
+  // Käydään jokainen rivi läpi
+  for (const line of lines) {
+    // Erotellaan rivin sanat välilyönnin kohdalta
+    // (ensimmäinen suomenkielinen sana, toinen englanninkielinen sana)
+    const [finWord, engWord] = line.split(" ");
+    if (finnishWord === finWord) {
+      //return res.json({ engWord });
+      return res.send(engWord);
+    }
+  }
+
+  // kun sanaa ei löydy
+  res.json({ message: "Sanaa ei löydy" });
+});
+
+// POST /words - lisää uusi sana sanakirjaan
+app.post("/words", (req, res) => {
+  // Saadaan data pyynnön bodysta
+  const wordPair = req.body;
+
+  // Muodostetaan uusi rivi tiedostoon
+  const newLine = `${wordPair.finnish} ${wordPair.english}\n`;
+
+  // Lisätään rivi tiedoston loppuun
+  fs.appendFileSync("./sanakirja.txt", newLine);
+
+  // Lähetetään takaisin lisätyt data
+  res.json({
+    message: "Sana lisätty onnistuneesti",
+    lisatty: wordPair,
+  });
+});
+
 // GET all words
 app.get("/words", (req, res) => {
   const data = fs.readFileSync("./sanakirja.txt", {
